@@ -47,75 +47,79 @@ void printbin(unsigned long int printingbit);
 
 int main()
 {
-    char line[MAXLINE];
-    char command[MAXLINE];
-    char inputtext[MAXLINE];
-    char inputkey[MAXLINE];
-    char signature[MAXLINE];
-    int  items;
-    int i, invalid, invalidkey;
+  char line[MAXLINE];
+  char command[MAXLINE];
+  char inputtext[MAXLINE];
+  char inputkey[MAXLINE];
+  char signature[MAXLINE];
+  int  items;
+  int i, invalid, invalidkey;
 
-    printf("\nMP2: Vigenere cipher with signature\n");
-    printf("Commands:\n\tenc 16-hex-digits 2-hex-digits (keyword)\n");
-    printf("\tdec 16-hex-digits 2-hex-digits (keyword) 1-hex-digit (signature)\n\tquit\n");
+  printf("\nMP2: Vigenere cipher with signature\n");
+  printf("Commands:\n\tenc 16-hex-digits 2-hex-digits (keyword)\n");
+  printf("\tdec 16-hex-digits 2-hex-digits (keyword) 1-hex-digit (signature)\n\tquit\n");
 
-    // each call to fgets collects one line of input and stores in line
-    while (fgets(line, MAXLINE, stdin) != NULL) {
-        items = sscanf(line, "%s%s%s%s", command, inputtext, inputkey, signature);
-        if (items == 1 && strcmp(command, "quit") == 0) {
-            break;
-        } else if (items == 3 && strcmp(command, "enc") == 0) {
-            // encoding
-            if (strlen(inputtext) != TEXTSIZE || strlen(inputkey) != KEWORDSIZE) {
-                printf("Invalid input to encoder: %s %s\n", inputtext, inputkey);
-                printf("  Line was: %s\n", line);
-            } else {
-                // verify that intput contains hex digits only
-                for (i=0, invalid=0; i < strlen(inputtext) && !invalid; i++) {
-                    if (!isxdigit(inputtext[i]))
-                        invalid = 1;
-                }
-                for (i=0, invalidkey=0; i < strlen(inputkey) && !invalidkey; i++) {
-                    if (!isxdigit(inputkey[i]))
-                        invalidkey = 1;
-                }
-                if (invalid || invalidkey) {
-                    printf("Invalid characters in plaintext: %s or key: %s\n",
-                           inputtext, inputkey);
-                } else {
-                    encode(inputtext, inputkey);
-                }
-            }
-        } else if (items == 4 && strcmp(command, "dec") == 0) {
-            // decoding
-            if (strlen(inputtext) != TEXTSIZE || strlen(inputkey) != KEWORDSIZE
-                    || strlen(signature) != SIGNATURESIZE) {
-                printf("Invalid input to decoder: %s %s %s\n", inputtext,
-                       inputkey, signature);
-                printf("  Line was: %s\n", line);
-            } else {
-                // verify all digits are hex characters
-                for (i=0, invalid=0; i < strlen(inputtext) && !invalid; i++) {
-                    if (!isxdigit(inputtext[i]))
-                        invalid = 1;
-                }
-                for (i=0, invalidkey=0; i < strlen(inputkey) && !invalidkey; i++) {
-                    if (!isxdigit(inputkey[i]))
-                        invalidkey = 1;
-                }
-                if (invalid || invalidkey || !isxdigit(signature[0])) {
-                    printf("Invalid decoder digits: %s or key: %s or signature %s\n",
-                           inputtext, inputkey, signature);
-                } else {
-                    decode(inputtext, inputkey, signature[0]);
-                }
-            }
-        } else {
-            printf("# :%s", line);
-        }
+  // each call to fgets collects one line of input and stores in line
+  while (fgets(line, MAXLINE, stdin) != NULL) {
+    items = sscanf(line, "%s%s%s%s", command, inputtext, inputkey, signature);
+    if (items == 1 && strcmp(command, "quit") == 0) {
+      break;
     }
-    printf("Goodbye\n");
-    return 0;
+    else if (items == 3 && strcmp(command, "enc") == 0) {
+      // encoding
+      if (strlen(inputtext) != TEXTSIZE || strlen(inputkey) != KEWORDSIZE) {
+        printf("Invalid input to encoder: %s %s\n", inputtext, inputkey);
+        printf("  Line was: %s\n", line);
+      } 
+      else {
+        // verify that intput contains hex digits only
+        for (i=0, invalid=0; i < strlen(inputtext) && !invalid; i++) {
+          if (!isxdigit(inputtext[i]))
+            invalid = 1;
+        }
+        for (i=0, invalidkey=0; i < strlen(inputkey) && !invalidkey; i++) {
+          if (!isxdigit(inputkey[i]))
+            invalidkey = 1;
+        }
+        if (invalid || invalidkey) {
+          printf("Invalid characters in plaintext: %s or key: %s\n",
+          inputtext, inputkey);
+        }
+        else {
+          encode(inputtext, inputkey);
+        }
+      }
+    }
+    else if (items == 4 && strcmp(command, "dec") == 0) {
+      // decoding
+      if (strlen(inputtext) != TEXTSIZE || strlen(inputkey) != KEWORDSIZE || strlen(signature) != SIGNATURESIZE) {
+        printf("Invalid input to decoder: %s %s %s\n", inputtext, inputkey, signature);
+        printf("  Line was: %s\n", line);
+      }
+      else {
+        // verify all digits are hex characters
+        for (i=0, invalid=0; i < strlen(inputtext) && !invalid; i++) {
+          if (!isxdigit(inputtext[i]))
+            invalid = 1;
+        }
+        for (i=0, invalidkey=0; i < strlen(inputkey) && !invalidkey; i++) {
+          if (!isxdigit(inputkey[i]))
+            invalidkey = 1;
+        }
+        if (invalid || invalidkey || !isxdigit(signature[0])) {
+          printf("Invalid decoder digits: %s or key: %s or signature %s\n", inputtext, inputkey, signature);
+        }
+        else {
+          decode(inputtext, inputkey, signature[0]);
+        }
+      }
+    } 
+    else {
+      printf("# :%s", line);
+    }
+  }
+  printf("Goodbye\n");
+  return 0;
 }
 
 
@@ -133,210 +137,173 @@ int main()
  *
  * There is no return value, but the prints described below are required
  */
-void encode(char plaintext[], char keyword[])
-{
-    // these definitions only work for a 64-bit architecture
-    unsigned long int plainbits = 0;
-    unsigned long int ciphertext = 0;
-    unsigned long int keybit = 0;
-    int signature = 0;
-    int i =0,j=0;
-    int nibble;
-    int key = 0;
-    int shift = 0;
-    int keylength = 0;
-    int keyleftover = 0;
+void encode(char plaintext[], char keyword[]) {
+  // these definitions only work for a 64-bit architecture
+  unsigned long int plainbits = 0;
+  unsigned long int ciphertext = 0;
+  unsigned long int keybit = 0;
+  int signature = 0;
+  int i =0,j=0;
+  int nibble;
+  int key = 0;
+  int shift = 0;
+  int keylength = 0;
+  int keyleftover = 0;
+  int dummy = -1;
 
+  printf("\nEncoding plaintext: %s with key %s\n", plaintext, keyword);
 
-    // dummy is a placeholder.  You must change for your design
-    int dummy = -1;
-
-    printf("\nEncoding plaintext: %s with key %s\n", plaintext, keyword);
-
-    for(i=0; i<16; i++) {
-        nibble = plaintext[i];
-        if (nibble >= '0' && nibble <= '9') {
-            nibble = nibble - '0';
-        }
-        else if (nibble >= 'a' && nibble <= 'f') {
-            nibble = nibble - 'a' + 10;
-        }
-        else if (nibble >= 'A' && nibble <= 'F') {
-            nibble = nibble - 'A' + 10;
-        }
-        plainbits = (plainbits << 4) | (nibble & 0xF);
+  for(i=0; i<16; i++) {
+    nibble = plaintext[i];
+    if (nibble >= '0' && nibble <= '9') {
+      nibble = nibble - '0';
     }
-
-    // you must convert the plain text from ASCII char to binary
-    printf("Plaintext as hex number: %016lx\n", plainbits);
-
-    printbin(plainbits);
-
-
-
-
-
-
-
-    // print the plain text in binary format and show the hex digits
-    // see the example output file for the format that is required
-
-
-
-    for(i=0; i<2; i++) {
-        nibble = keyword[i];
-        if (nibble >= '0' && nibble <= '9') {
-            nibble = nibble - '0';
-        }
-        else if (nibble >= 'a' && nibble <= 'f') {
-            nibble = nibble - 'a' + 10;
-        }
-        else if (nibble >= 'A' && nibble <= 'F') {
-            nibble = nibble - 'A' + 10;
-        }
-        key = (key << 4) | (nibble & 0xF);
+    else if (nibble >= 'a' && nibble <= 'f') {
+      nibble = nibble - 'a' + 10;
     }
-    for (i=8; i>=0; i--) {
-        if ((key & ( 1 << i) ) >> i)
-            break;
+    else if (nibble >= 'A' && nibble <= 'F') {
+      nibble = nibble - 'A' + 10;
     }
-
-    i++;
-
-    keylength = i;
-
-    nibble = key;
-    dummy = key;
-
-    if ((i <= 2) || (i > 8) || (key == 0x01) || (key == 0x03) || (key == 0x07) || (key == 0x0F) || (key == 0x1F) || (key == 0x3F) || (key == 0x7F) || (key == 0xFF)) {
-        printf("keyword is invalid: %s, %x\n", keyword, dummy);
-        return;
+    plainbits = (plainbits << 4) | (nibble & 0xF);
+  }
+    
+  printf("Plaintext as hex number: %016lx\n", plainbits);
+  printbin(plainbits);
+    
+  for(i=0; i<2; i++) {
+    nibble = keyword[i];
+    if (nibble >= '0' && nibble <= '9') {
+      nibble = nibble - '0';
     }
-
-    dummy = keylength;
-    // Print the keyword, the length of the keyword, and the binary
-    // form of the keyword.
-    printf("Generate key from input: %s, Key length: %d Keyword: ", keyword, dummy);
-
-    for (j=7; j>=0; j--) {
-        printf("%d", (nibble & (1 << j )) >> j);
-
+    else if (nibble >= 'a' && nibble <= 'f') {
+      nibble = nibble - 'a' + 10;
     }
-
-    printf("\n");
-    // Next print the 64 bit key in binary and hex format
-
-
-
-    shift = 64 / keylength;
-
-    keyleftover = 64 % keylength;
-
-    keybit = key;
-
-    for (i=shift; i>0; i--) {
-        ciphertext = ciphertext | (keybit << ((keylength * i) + keyleftover - keylength)) ;
+    else if (nibble >= 'A' && nibble <= 'F') {
+      nibble = nibble - 'A' + 10;
     }
+    key = (key << 4) | (nibble & 0xF);
+  }
+  for (i=8; i>=0; i--) {
+    if ((key & ( 1 << i) ) >> i)
+      break;
+  }
+  
+  i++;
+  keylength = i;
+  nibble = key;
+  dummy = key;
 
-    for (i=0; i<keyleftover; i++) {
-        ciphertext = ciphertext | (0 << i);
-    }
-    ciphertext = ciphertext | (keybit >> (keylength - keyleftover));
-//ciphertext = ciphertext | (key << dummy);
+  if ((i <= 2) || (i > 8) || (key == 0x01) || (key == 0x03) || (key == 0x07) || (key == 0x0F) || (key == 0x1F) || (key == 0x3F) || (key == 0x7F) || (key == 0xFF)) {
+    printf("keyword is invalid: %s, %x\n", keyword, dummy);
+    return;
+  }
 
-    printbin(ciphertext);
-    // Print the ciphertext in binary and hex.  See example output file
-    printf("Ciphertext\n");
+  dummy = keylength;
 
-    ciphertext = ciphertext ^ plainbits;
+  printf("Generate key from input: %s, Key length: %d Keyword: ", keyword, dummy);
 
-    printbin(ciphertext);
+  for (j=7; j>=0; j--) {
+    printf("%d", (nibble & (1 << j )) >> j);
+  }
 
+  printf("\n");
+  
+  shift = 64 / keylength;
+  keyleftover = 64 % keylength;
+  keybit = key;
 
-    int paritybit =0;
-    // print the parity bits, one bit per line.
-    unsigned long x = 1UL;
+  for (i=shift; i>0; i--) {
+    ciphertext = ciphertext | (keybit << ((keylength * i) + keyleftover - keylength)) ;
+  }
 
-    for (i=1; i<64; i++) {
-        if (((i % 2) == 0) || (i == 0))
-            paritybit = paritybit + ((ciphertext & (x << i)) >> i);
-    }
+  for (i=0; i<keyleftover; i++) {
+    ciphertext = ciphertext | (0 << i);
+  }
+  
+  ciphertext = ciphertext | (keybit >> (keylength - keyleftover));
 
-    paritybit = paritybit % 2;
+  printbin(ciphertext);
+  
+  printf("Ciphertext\n");
 
-    if(paritybit != 0) {
+  ciphertext = ciphertext ^ plainbits;
+
+  printbin(ciphertext);
+    
+  int paritybit =0;
+ 
+  unsigned long x = 1UL;
+
+  for (i=1; i<64; i++) {
+    if (((i % 2) == 0) || (i == 0))
+      paritybit = paritybit + ((ciphertext & (x << i)) >> i);
+  }
+
+  paritybit = paritybit % 2;
+
+  if(paritybit != 0) {
         dummy = 1;
+  }
+  else {
+    dummy =0;
+  }
+  printf("B0 : %d\n", dummy);
+
+  signature = signature | (dummy);
+
+  paritybit = 0;
+  for (i=0; i<64; i++) {
+    if (((i % 3) == 0) || (i == 0)) {
+      paritybit = paritybit + ((ciphertext & (x << i)) >> i);
     }
-    else {
-        dummy =0;
-    }
-    printf("B0 : %d\n", dummy);
+  }
 
-    signature = signature | (dummy);
+  paritybit = paritybit % 2;
 
+  if (paritybit != 0) {
+    dummy = 1;
+  }
+  else {
+    dummy =0;
+  }
 
-    paritybit = 0;
-    for (i=0; i<64; i++) {
-        if (((i % 3) == 0) || (i == 0)) {
-            paritybit = paritybit + ((ciphertext & (x << i)) >> i);
+  printf("B1 : %d\n", dummy);
+  signature = signature | (dummy << 1);
+  paritybit = 0;
+  for (i=12; i<=25; i++) {
+    paritybit = paritybit + ((ciphertext & (x << i)) >> i);
+  }
 
+  paritybit = paritybit % 2;
 
-        }
-    }
+  if (paritybit > 0) {
+    dummy = 1;
+  }
+  else {
+    dummy =0;
+  }
 
-    paritybit = paritybit % 2;
+  printf("B2 : %d\n", dummy);
+  signature = signature | (dummy << 2);
+  paritybit = 0;
+  for (i=0; i<64; i++) {
+    if (i==0 || i==1 || i==3 || i==7 || i==15 || i==31 || i==63)
+      paritybit = paritybit + ((ciphertext & (x << i)) >> i);
+  }
 
-    if(paritybit != 0) {
-        dummy = 1;
-    }
-    else {
-        dummy =0;
-    }
+  paritybit = paritybit % 2;
 
-    printf("B1 : %d\n", dummy);
-    signature = signature | (dummy << 1);
-    paritybit = 0;
-    for (i=12; i<=25; i++) {
-        paritybit = paritybit + ((ciphertext & (x << i)) >> i);
-    }
+  if (paritybit > 0) {
+    dummy = 1;
+  }
+  else {
+    dummy =0;
+  }
 
-    paritybit = paritybit % 2;
+  printf("B3 : %d\n", dummy);
+  signature = signature | (dummy << 3);
 
-    if(paritybit > 0) {
-        dummy = 1;
-    }
-    else {
-        dummy =0;
-    }
-
-
-
-
-    printf("B2 : %d\n", dummy);
-    signature = signature | (dummy << 2);
-    paritybit = 0;
-    for (i=0; i<64; i++) {
-        if (i==0 || i==1 || i==3 || i==7 || i==15 || i==31 || i==63)
-            paritybit = paritybit + ((ciphertext & (x << i)) >> i);
-    }
-
-    paritybit = paritybit % 2;
-
-    if(paritybit > 0) {
-        dummy = 1;
-    }
-    else {
-        dummy =0;
-    }
-
-
-
-
-    printf("B3 : %d\n", dummy);
-    signature = signature | (dummy << 3);
-
-    // print the ciphertext, keyword, and signature all in hex format
-    printf("Ciphertext with signature: %16lx  %s %X\n\n", ciphertext, keyword, signature);
+  printf("Ciphertext with signature: %16lx  %s %X\n\n", ciphertext, keyword, signature);
 }
 
 /* decode: checks the keword and signature and prints the plaintext
@@ -359,249 +326,211 @@ void encode(char plaintext[], char keyword[])
  *  The prints included below provide the format required for the output.
  *
  */
-void decode(char ciphertext[], char keyword[], char signature)
-{
-    // print the input values
-    printf("\nDecoding: %s with signature %c and key: %s\n", ciphertext, signature, keyword);
+void decode(char ciphertext[], char keyword[], char signature) {
+  printf("\nDecoding: %s with signature %c and key: %s\n", ciphertext, signature, keyword);
 
-    unsigned long int cipherbits = 0;
-    unsigned long int plaintext = 0;
-    unsigned long int keybit = 0;
-    // dummy is a placeholder.  You must change for your design
-    int dummy = -1;
-    int signature_d = 0;
-    int signature_e = 0;
-    int nibble = 0;
-    int i,j;
-    int key = 0;
-    int keylength;
-    int shift;
-    int keyleftover;
-    // If the keyword is invalid use this print to show the hex value then return
-
-    for(i=0; i<2; i++) {
-        nibble = keyword[i];
-        if (nibble >= '0' && nibble <= '9') {
-            nibble = nibble - '0';
-        }
-        else if (nibble >= 'a' && nibble <= 'f') {
-            nibble = nibble - 'a' + 10;
-        }
-        else if (nibble >= 'A' && nibble <= 'F') {
-            nibble = nibble - 'A' + 10;
-        }
-        key = (key << 4) | (nibble & 0xF);
-    }
-
-    nibble = key;
-
-    for (i=8; i>=0; i--) {
-        if ((key & ( 1 << i) ) >> i)
-            break;
-    }
-    i++;
-    keylength = i;
-    dummy = key;
-
-    if ((i <= 2) || (i > 8) || (key == 0x01) || (key == 0x03) || (key == 0x07) || (key == 0x0F) || (key == 0x1F) || (key == 0x3F) || (key == 0x7F) || (key == 0xFF)) {
-        printf("keyword is invalid: %s, %x\n", keyword, dummy);
-        return;
-    }
-    dummy = i;
-
-
-    // Print the keyword, the length of the keyword, and the binary
-    // form of the keyword.
-    printf("Generate key from input: %s, Key length: %d Keyword: ", keyword, dummy);
-    for (j=7; j>=0; j--) {
-        printf("%d", (nibble & (1 << j )) >> j);
-
-    }
-
-    shift = 64 / keylength;
-
-    keyleftover = 64 % keylength;
-
-    keybit = key;
-
-    unsigned long int full_key = 0;
-
-    for (i=shift; i>0; i--) {
-        full_key = full_key | (keybit << ((keylength * i) + keyleftover - keylength)) ;
-    }
-
-    for (i=0; i<keyleftover; i++) {
-        full_key = full_key | (0 << i);
-    }
-    full_key = full_key | (keybit >> (keylength - keyleftover));
-//ciphertext = ciphertext | (key << dummy);
-
-
-
-
-
-    printf("\n");
-
-    // Next print the 64 bit key in binary and hex format
-
-    for(i=0; i<16; i++) {
-        nibble = ciphertext[i];
-        if (nibble >= '0' && nibble <= '9') {
-            nibble = nibble - '0';
-        }
-        else if (nibble >= 'a' && nibble <= 'f') {
-            nibble = nibble - 'a' + 10;
-        }
-        else if (nibble >= 'A' && nibble <= 'F') {
-            nibble = nibble - 'A' + 10;
-        }
-        cipherbits = (cipherbits << 4) | (nibble & 0xF);
-    }
-
-    printbin(full_key);
-    // convert the ciphertext to a variable and print as hex and in binary
-    printf("Cipher as hex number: %lx\n", cipherbits);
-
-    printbin(cipherbits);
-
-    int paritybit =0;
-
-    unsigned long x = 1UL;
-
-    // print the parity bits, one bit per line.
-
-
-    for (i=1; i<64; i++) {
-        if (((i % 2) == 0) || (i == 0))
-            paritybit = paritybit + ((cipherbits & (x << i)) >> i);
-    }
-
-    paritybit = paritybit % 2;
-
-    if(paritybit != 0) {
-        dummy = 1;
-    }
-    else {
-        dummy =0;
-    }
-    printf("B0 : %d\n", dummy);
-
-    signature_d = signature_d | (dummy);
-
-
-    paritybit = 0;
-    for (i=0; i<64; i++) {
-        if (((i % 3) == 0) || (i == 0)) {
-            paritybit = paritybit + ((cipherbits & (x << i)) >> i);
-
-
-        }
-    }
-
-    paritybit = paritybit % 2;
-
-    if(paritybit != 0) {
-        dummy = 1;
-    }
-    else {
-        dummy =0;
-    }
-
-    printf("B1 : %d\n", dummy);
-    signature_d = signature_d | (dummy << 1);
-    paritybit = 0;
-    for (i=12; i<=25; i++) {
-        paritybit = paritybit + ((cipherbits & (x << i)) >> i);
-    }
-
-    paritybit = paritybit % 2;
-
-    if(paritybit > 0) {
-        dummy = 1;
-    }
-    else {
-        dummy =0;
-    }
-
-
-
-
-    printf("B2 : %d\n", dummy);
-    signature_d = signature_d | (dummy << 2);
-    paritybit = 0;
-    for (i=0; i<64; i++) {
-        if (i==0 || i==1 || i==3 || i==7 || i==15 || i==31 || i==63)
-            paritybit = paritybit + ((cipherbits & (x << i)) >> i);
-    }
-
-    paritybit = paritybit % 2;
-
-    if(paritybit > 0) {
-        dummy = 1;
-    }
-    else {
-        dummy =0;
-    }
-
-
-
-
-    printf("B3 : %d\n", dummy);
-    signature_d = signature_d | (dummy << 3);
-
-    nibble = signature;
+  unsigned long int cipherbits = 0;
+  unsigned long int plaintext = 0;
+  unsigned long int keybit = 0;
+  
+  int dummy = -1;
+  int signature_d = 0;
+  int signature_e = 0;
+  int nibble = 0;
+  int i,j;
+  int key = 0;
+  int keylength;
+  int shift;
+  int keyleftover;
+  
+  for(i=0; i<2; i++) {
+    nibble = keyword[i];
     if (nibble >= '0' && nibble <= '9') {
-        nibble = nibble - '0';
+      nibble = nibble - '0';
     }
     else if (nibble >= 'a' && nibble <= 'f') {
-        nibble = nibble - 'a' + 10;
+      nibble = nibble - 'a' + 10;
     }
     else if (nibble >= 'A' && nibble <= 'F') {
-        nibble = nibble - 'A' + 10;
+      nibble = nibble - 'A' + 10;
     }
-    signature_e = (signature_e << 4) | (nibble & 0xF);
+    key = (key << 4) | (nibble & 0xF);
+  }
 
-    // if the signature does not match the calculation print this message then return
-    if (signature_d != signature_e) {
-        printf("Message is not from a trusted source!\n");
-        return;
+  nibble = key;
+
+  for (i=8; i>=0; i--) {
+    if ((key & ( 1 << i) ) >> i)
+      break;
+  }
+  
+  i++;
+  keylength = i;
+  dummy = key;
+
+  if ((i <= 2) || (i > 8) || (key == 0x01) || (key == 0x03) || (key == 0x07) || (key == 0x0F) || (key == 0x1F) || (key == 0x3F) || (key == 0x7F) || (key == 0xFF)) {
+    printf("keyword is invalid: %s, %x\n", keyword, dummy);
+    return;
+  }
+  
+  dummy = i;
+    
+  printf("Generate key from input: %s, Key length: %d Keyword: ", keyword, dummy);
+  for (j=7; j>=0; j--) {
+    printf("%d", (nibble & (1 << j )) >> j);
+  }
+
+  shift = 64 / keylength;
+  keyleftover = 64 % keylength;
+  keybit = key;
+  unsigned long int full_key = 0;
+
+  for (i=shift; i>0; i--) {
+    full_key = full_key | (keybit << ((keylength * i) + keyleftover - keylength)) ;
+  }
+
+  for (i=0; i<keyleftover; i++) {
+    full_key = full_key | (0 << i);
+  }
+
+  full_key = full_key | (keybit >> (keylength - keyleftover));
+
+  printf("\n");
+
+  for(i=0; i<16; i++) {
+    nibble = ciphertext[i];
+    if (nibble >= '0' && nibble <= '9') {
+      nibble = nibble - '0';
     }
+    else if (nibble >= 'a' && nibble <= 'f') {
+      nibble = nibble - 'a' + 10;
+    }
+    else if (nibble >= 'A' && nibble <= 'F') {
+      nibble = nibble - 'A' + 10;
+    }
+    cipherbits = (cipherbits << 4) | (nibble & 0xF);
+  }
 
-    plaintext = full_key ^ cipherbits;
+  printbin(full_key);
+  
+  printf("Cipher as hex number: %lx\n", cipherbits);
+  printbin(cipherbits);
 
-    // you must print the original text in binary format
-    printf("Plaintext\n");
-    printbin(plaintext);
-    // print the original text in hex:
-    printf(" Original plaintext: %016lX\n\n", plaintext);
+  int paritybit =0;
+  unsigned long x = 1UL;
+
+  for (i=1; i<64; i++) {
+    if (((i % 2) == 0) || (i == 0))
+      paritybit = paritybit + ((cipherbits & (x << i)) >> i);
+  }
+
+  paritybit = paritybit % 2;
+
+  if (paritybit != 0) {
+    dummy = 1;
+  }
+  else {
+    dummy =0;
+  }
+  printf("B0 : %d\n", dummy);
+
+  signature_d = signature_d | (dummy);
+
+  paritybit = 0;
+  for (i=0; i<64; i++) {
+    if (((i % 3) == 0) || (i == 0)) {
+      paritybit = paritybit + ((cipherbits & (x << i)) >> i);
+    }
+  }
+
+  paritybit = paritybit % 2;
+
+  if (paritybit != 0) {
+    dummy = 1;
+  }
+  else {
+    dummy =0;
+  }
+
+  printf("B1 : %d\n", dummy);
+  signature_d = signature_d | (dummy << 1);
+  paritybit = 0;
+  for (i=12; i<=25; i++) {
+    paritybit = paritybit + ((cipherbits & (x << i)) >> i);
+  }
+
+  paritybit = paritybit % 2;
+
+  if (paritybit > 0) {
+    dummy = 1;
+    }
+  else {
+      dummy =0;
+  }
+
+  printf("B2 : %d\n", dummy);
+  signature_d = signature_d | (dummy << 2);
+  paritybit = 0;
+  for (i=0; i<64; i++) {
+    if (i==0 || i==1 || i==3 || i==7 || i==15 || i==31 || i==63)
+      paritybit = paritybit + ((cipherbits & (x << i)) >> i);
+  }
+
+  paritybit = paritybit % 2;
+
+  if (paritybit > 0) {
+    dummy = 1;
+  }
+  else {
+    dummy =0;
+  }
+
+  printf("B3 : %d\n", dummy);
+  signature_d = signature_d | (dummy << 3);
+
+  nibble = signature;
+  if (nibble >= '0' && nibble <= '9') {
+    nibble = nibble - '0';
+  }
+  else if (nibble >= 'a' && nibble <= 'f') {
+    nibble = nibble - 'a' + 10;
+  }
+  else if (nibble >= 'A' && nibble <= 'F') {
+    nibble = nibble - 'A' + 10;
+  }
+  signature_e = (signature_e << 4) | (nibble & 0xF);
+
+  if (signature_d != signature_e) {
+    printf("Message is not from a trusted source!\n");
+    return;
+  }
+
+  plaintext = full_key ^ cipherbits;
+
+  printf("Plaintext\n");
+  printbin(plaintext);
+  
+  printf(" Original plaintext: %016lX\n\n", plaintext);
 }
 
 void printbin(unsigned long int printingbit) {
-    int i=0,j=0;
+  int i=0,j=0;
 
-    printf(" ");
-    int holder = 0;
-    for (j=63,i=1; j>=0; j--,i++) {
-        holder = ((printingbit >> j) & 0x1);
-        printf("%d", holder);
-
-
-
-
-
-        if (i == 4) {
-            i = 0;
-            printf(" ");
-        }
+  printf(" ");
+  int holder = 0;
+  
+  for (j=63,i=1; j>=0; j--,i++) {
+    holder = ((printingbit >> j) & 0x1);
+    printf("%d", holder);
+    if (i == 4) {
+      i = 0;
+      printf(" ");
     }
-    printf("\n    ");
-
-    for(i=16; i>=1; i--) {
-        holder = ((printingbit >> (i * 4 - 4)) & 0xF);
-        printf("%01x    ", holder);
-    }
-    printf("\n");
-
-
-
+  }
+  printf("\n    ");
+  for(i=16; i>=1; i--) {
+    holder = ((printingbit >> (i * 4 - 4)) & 0xF);
+    printf("%01x    ", holder);
+  }
+  printf("\n");
 }
