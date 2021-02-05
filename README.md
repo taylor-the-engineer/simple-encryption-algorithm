@@ -47,6 +47,6 @@ sudo apt-get update
 
 ## Contact
 
-Taylor Daniska - [@daniskaprojects](https://twitter.com/daniskaprojects) - taylor@daniskaprojects.com
+Taylor Daniska - [@daniskaprojects](https://www.instagram.com/daniska_projects/) - taylor@daniskaprojects.com
 
 Project Link: [https://github.com/TaylorDaniska/hex_encryption_algorithm](https://github.com/TaylorDaniska/hex_encryption_algorithm)
