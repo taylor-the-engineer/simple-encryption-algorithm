@@ -35,4 +35,4 @@ gcc main.c -o hexcrypt
 
 ## Contact
 
-Taylor Daniska - taylor@daniskaprojects.com
+Taylor Daniska - taylor@daniskaengineering.com
