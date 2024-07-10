@@ -1,7 +1,5 @@
 /* main.c
  * Taylor Daniska
- * ECE 2220, Fall 2017
- * MP2
  *
  * Assumptions:
  *       The menu driven input is provided and must be used exactly
