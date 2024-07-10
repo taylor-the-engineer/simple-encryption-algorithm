@@ -1,6 +1,6 @@
 ## About
 
-This was a simple school project. Mainly used for testing my debian repository.
+This is a simple encryption tool written in C.
 
 ## Getting Started
 
@@ -25,18 +25,6 @@ gcc main.c -o hexcrypt
 ./hexcrypt
 ```
 
-### Installing from Package
-
-You can also install using the debian package provided
-
-### Installing from Repository
-
-Install the Daniska Projects Offical Repo using
-```sh
-sudo echo "deb [trusted=yes] http://deb.daniskaprojects.com/debian ./" | tee -a /etc/apt/sources.list > /dev/null
-sudo apt-get update
-```
-
 ## Contributing
 
 1. Fork the Project
@@ -47,4 +35,4 @@ sudo apt-get update
 
 ## Contact
 
-Taylor Daniska - [@daniskaprojects](https://www.instagram.com/daniska_projects/) - taylor@daniskaprojects.com
+Taylor Daniska - taylor@daniskaprojects.com
